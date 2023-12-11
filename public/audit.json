@@ -1,0 +1,6 @@
+{
+    "roles": {
+        "admin": "ROLE_ADMIN",
+        "developer": "ROLE_DEVELOPER"
+    }
+}

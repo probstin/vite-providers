@@ -1,0 +1,8 @@
+{
+    "ROLE_DEVELOPER": [
+        "USER_ROLE_1"
+    ],
+    "ROLE_ADMIN": [
+        "USER_ROLE_2"
+    ]
+}
