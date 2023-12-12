@@ -6,6 +6,7 @@
     "userProfile": {
         "displayName": "Justin P.",
         "ldapRoles": [
+            "CUSTOM_ROLE_0",
             "CUSTOM_ROLE_1",
             "CUSTOM_ROLE_2"
         ]
