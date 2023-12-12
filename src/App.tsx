@@ -1,18 +1,16 @@
-import { APP_ROLES } from "./main";
-import { useAppRoles, usePermissions } from "./providers/AuthorizationProvider"
+import { SYSTEM_ROLES } from "./main";
+import { useCheckPermissions, useUserSystemRoles } from "./providers/AuthorizationProvider";
 
 function App() {
-  const roles = useAppRoles();
+  const userSystemRoles = useUserSystemRoles();
 
   return (
     <>
-      <h1>
-        Hello, world!
-      </h1>
-      <div>{JSON.stringify(roles)}</div>
-      <div>User is an {usePermissions(APP_ROLES.ROLE_ADMIN) ? 'ADMIN' : '--'}</div>
+      <div>User System Roles: {JSON.stringify(userSystemRoles)}</div>
+      {useCheckPermissions(SYSTEM_ROLES.ROLE_ADMIN) && <div>User is an ADMIN</div>}
+      {useCheckPermissions(SYSTEM_ROLES.ROLE_DEVELOPER) && <div>User is a DEVELOPER</div>}
     </>
   )
 }
 
-export default App
+export default App;

@@ -1,89 +1,94 @@
 import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
-
-type CommonProps = {
-    children: React.ReactNode;
-};
+import { useUserProfile } from "./AuthenticationProvider";
 
 type ClientModeProps = {
     mode: "client";
-    configFileName?: string; // Default is 'roles.json'
-    userRoles: string[]; // Roles of the current user
+    configFileName?: string; // Default = 'roles.json'
 };
 
 type ServerModeProps = {
     mode: "server";
-    endpoint: string; // API endpoint to fetch roles
+    apiEndpoint: string;
 };
 
-type RoleProviderProps = CommonProps & (ClientModeProps | ServerModeProps);
+type RoleProviderProps = React.PropsWithChildren & (ClientModeProps | ServerModeProps);
 
-interface RoleConfig {
+type SystemRoleMapping = {
     [key: string]: string[];
 }
 
-const RoleContext = createContext<string[] | null>(null);
+const AuthorizationContext = createContext<string[] | null>(null);
 
-const AuthorizationProvider: React.FC<RoleProviderProps> = ({
+function AuthorizationProvider({
     children,
     mode,
     ...props
-}) => {
-    const [appRoles, setAppRoles] = useState<string[] | null>(null);
+}: RoleProviderProps): React.ReactElement {
+    const { ldapRoles } = useUserProfile();
+    const [systemRoles, setSystemRoles] = useState<string[] | null>(null);
+    const [isLoading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRoles = async () => {
             try {
+                // CLIENT mode
+                // - requires a roles.json mapping file that defines the role structure of the application
+                // - retrieves the configuration
+                // - compares it to the users enterprise roles (from their auth profile)
+                // - determines which system role they have
                 if (mode === "client") {
-                    const configFileName = props.configFileName || "roles.json";
-                    const { data: rolesConfig } = await axios.get<RoleConfig>(configFileName);
-                    const userRoles = props.userRoles;
-                    const userAppRoles: string[] = [];
-                    for (const [appRole, requiredRoles] of Object.entries(rolesConfig)) {
-                        if (requiredRoles.some((role) => userRoles.includes(role))) {
-                            userAppRoles.push(appRole);
-                        }
-                    }
+                    const { configFileName } = props as ClientModeProps;
+                    const { data: authorizationConfig } = await axios.get<SystemRoleMapping>(configFileName || "roles.json");
 
-                    setAppRoles(userAppRoles);
-                } else if (mode === "server") {
-                    const response = await axios.get<string[]>(props.endpoint);
-                    setAppRoles(response.data); // Assuming the endpoint returns the app role directly
+                    const userSystemRoles: string[] = Object
+                        .entries(authorizationConfig)
+                        .filter(([appRole, requiredRoles]) => requiredRoles.some(role => ldapRoles.includes(role)))
+                        .map(([appRole]) => appRole);
+
+                    setSystemRoles(userSystemRoles);
+                }
+                // SERVER mode
+                // - requires an API endpoint to return an array of strings
+                // - each value is a system role that the user has
+                // - API is responsible for determining the roles
+                else if (mode === "server") {
+                    const { apiEndpoint } = props as ServerModeProps;
+                    const response = await axios.get<string[]>(apiEndpoint);
+                    setSystemRoles(response.data); // Assuming the endpoint returns the app role directly
                 }
             } catch (err: any) {
                 setError(err.message);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchRoles();
     }, []);
 
-    useEffect(() => {
-        if (appRoles && appRoles.length) {
-            console.log(appRoles);
-        }
-    }, [appRoles]);
-
-    if (error) {
-        return <div>Error loading roles: {error}</div>;
-    }
-
     return (
-        <RoleContext.Provider value={appRoles}>{children}</RoleContext.Provider>
+        <>
+            {isLoading && <p>Loading authorization config...</p>}
+            {!isLoading && error && <p style={{ color: "red " }}>[AuthorizationProvider]: {error}</p>}
+            {!isLoading && !error && systemRoles && <AuthorizationContext.Provider value={systemRoles}>{children}</AuthorizationContext.Provider>}
+        </>
     );
 };
 
-const useAppRoles = () => {
-    const context = useContext(RoleContext);
+const useUserSystemRoles = (): string[] | null => {
+    const context = useContext(AuthorizationContext);
+
     if (context === undefined) {
-        throw new Error('useAppRoles must be used within a RoleProvider');
+        throw new Error('useAppRoles must be used within the AuthorizationProvider');
     }
+
     return context;
 };
 
-const usePermissions = (role: string): boolean => {
-    const appRoles = useAppRoles();
+const useCheckPermissions = (role: string): boolean => {
+    const appRoles = useUserSystemRoles();
 
     if (appRoles) {
         return appRoles.includes(role);
@@ -92,4 +97,5 @@ const usePermissions = (role: string): boolean => {
     return false;
 };
 
-export { AuthorizationProvider, useAppRoles, usePermissions };
+export { AuthorizationProvider, useCheckPermissions, useUserSystemRoles };
+

@@ -1,0 +1,11 @@
+{
+    "ROLE_DEVELOPER": [
+        "CUSTOM_ROLE_1"
+    ],
+    "ROLE_ADMIN": [
+        [
+            "CUSTOM_ROLE_2",
+            "CUSTOM_ROLE_3"
+        ]
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "system-roles": [
+        "SYSTEM_ROLE_1",
+        "SYSTEM_ROLE_2"
+    ],
+    "userProfile": {
+        "displayName": "Justin P.",
+        "ldapRoles": [
+            "CUSTOM_ROLE_1",
+            "CUSTOM_ROLE_2"
+        ]
+    }
+}
