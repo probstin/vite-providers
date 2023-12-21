@@ -4,7 +4,7 @@ const findKeysByValues = (obj: any, valuesToFind: string[]): string[] => {
         .map(valueToFind =>
             Object
                 .entries(obj)
-                .find(([key, value]) => value === valueToFind)?.[0]
+                .find(([_, value]) => value === valueToFind)?.[0]
         )
         .filter(key => key !== undefined) as string[];
 

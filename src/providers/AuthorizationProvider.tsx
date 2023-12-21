@@ -44,7 +44,7 @@ function AuthorizationProvider({
 
                     const userSystemRoles: string[] = Object
                         .entries(authorizationConfig)
-                        .filter(([appRole, requiredRoles]) => requiredRoles.some(role => ldapRoles.includes(role)))
+                        .filter(([_, requiredRoles]) => requiredRoles.some(role => ldapRoles.includes(role)))
                         .map(([appRole]) => appRole);
 
                     setSystemRoles(userSystemRoles);

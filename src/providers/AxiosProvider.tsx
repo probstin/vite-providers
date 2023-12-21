@@ -1,14 +1,13 @@
 import axios, { AxiosInstance } from 'axios';
-import React, { createContext, useContext } from 'react';
+import React from 'react';
 
-interface AxiosInstancesContextProps {
-    instances: { [key: string]: AxiosInstance };
-}
+type AxiosProviderProps = {
+    apiUrls: { [key: string]: string };
+} & React.PropsWithChildren
 
-const AxiosProviderContext = createContext<AxiosInstancesContextProps | undefined>(undefined);
-const { Provider } = AxiosProviderContext;
+export const axiosInstances: { [key: string]: AxiosInstance } = {};
 
-export default function AxiosProvider({ children, apiUrls }: any & React.PropsWithChildren) {
+export default function AxiosProvider({ children, apiUrls }: AxiosProviderProps) {
     const globalAxiosDefaults = {
         headers: {
             Authorization: 'Bearer your_token_here' // Replace with your actual token
@@ -16,30 +15,13 @@ export default function AxiosProvider({ children, apiUrls }: any & React.PropsWi
         }
     };
 
-    const instances = Object
-        .keys(apiUrls)
-        .reduce((acc, key) => {
-            acc[key] = axios.create({ baseURL: apiUrls[key], ...globalAxiosDefaults });
-            return acc;
-        }, {} as { [key: string]: AxiosInstance });
+    Object.keys(apiUrls).forEach(key => {
+        axiosInstances[key] = axios.create({
+            baseURL: apiUrls[key],
+            ...globalAxiosDefaults
+            // ... other global configuration
+        });
+    });
 
-    return (
-        <Provider value={{ instances }}>
-            {children}
-        </Provider>
-    );
+    return children;
 }
-
-export const useAxios = (name: string) => {
-    const context = useContext(AxiosProviderContext);
-    if (!context) {
-        throw new Error('useAxios must be used within a AxiosProvider');
-    }
-
-    const axiosInstance = context.instances[name];
-    if (!axiosInstance) {
-        throw new Error(`No axios instance named "${name}" found`);
-    }
-    
-    return axiosInstance;
-};

@@ -2,16 +2,18 @@ import Button from "@mui/material/Button";
 import { SYSTEM_ROLES } from "./main";
 import { useCheckPermissions, useUserSystemRoles } from "./providers/AuthorizationProvider";
 import { useCustomTheme } from "./providers/CustomThemeProvider";
-import { useAxios } from "./providers/AxiosProvider";
 import { useEffect } from "react";
+import { axiosInstances } from "./providers/AxiosProvider";
 
 function App() {
-  const userSystemRoles = useUserSystemRoles();
   const { setActiveTheme } = useCustomTheme();
-  const primaryApi = useAxios('primary');
+  const userSystemRoles = useUserSystemRoles();
+  const primaryApi = axiosInstances['secondary'];
 
   useEffect(() => {
-    primaryApi.get('employees').then(res => console.log(res.data));
+    primaryApi
+      .get('employees')
+      .then(res => console.log(res.data));
   }, []);
 
   return (
