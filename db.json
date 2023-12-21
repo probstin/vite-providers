@@ -10,5 +10,11 @@
             "CUSTOM_ROLE_1",
             "CUSTOM_ROLE_2"
         ]
-    }
+    },
+    "employees": [
+        {
+            "id": 1,
+            "name": "justin"
+        }
+    ]
 }
