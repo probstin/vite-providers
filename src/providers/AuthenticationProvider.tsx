@@ -9,19 +9,11 @@ function AuthenticationProvider({ children }: React.PropsWithChildren): React.Re
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchUserProfile = async () => {
-            axios
-                .get('http://localhost:4500/userProfile')
-                .then(({ data: userProfile }) => setUserProfile((prevValue: any) => ({ ...prevValue, ...userProfile })))
-                .catch((error: { message: string }) => setError(error.message))
-                .finally(() => setLoading(false));
-        }
-
-        const timer = setTimeout(() => {
-            fetchUserProfile();
-        }, 4000); // Delaying the fetchUserProfile call for 4 seconds
-
-        return () => clearTimeout(timer); // Clean up the timer when the component unmounts or the useEffect dependencies change
+        axios
+            .get('http://localhost:4500/userProfile')
+            .then(({ data: userProfile }) => setUserProfile((prevValue: any) => ({ ...prevValue, ...userProfile })))
+            .catch((error: { message: string }) => setError(error.message))
+            .finally(() => setLoading(false));
     }, []);
 
     return (

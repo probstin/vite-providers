@@ -16,5 +16,8 @@
             "id": 1,
             "name": "justin"
         }
+    ],
+    "authorized-folders": [
+        "FOLDER_A", "FOLDER_B"
     ]
 }

@@ -1,14 +1,19 @@
+import { Box } from "@mui/material";
 import Button from "@mui/material/Button";
+import { useEffect } from "react";
+import ActiveFolderDisplay from "./components/ActiveFolderDisplay";
+import FolderSelector from "./components/FolderSelector";
 import { SYSTEM_ROLES } from "./main";
 import { useCheckPermissions, useUserSystemRoles } from "./providers/AuthorizationProvider";
-import { useCustomTheme } from "./providers/CustomThemeProvider";
-import { useEffect } from "react";
 import { axiosInstances } from "./providers/AxiosProvider";
+import { useCustomTheme } from "./providers/CustomThemeProvider";
+import { useAuthorizedFolders } from "./providers/FolderProvider";
 
 function App() {
   const { setActiveTheme } = useCustomTheme();
   const userSystemRoles = useUserSystemRoles();
   const primaryApi = axiosInstances['secondary'];
+  const authorizedFolders = useAuthorizedFolders();
 
   useEffect(() => {
     primaryApi
@@ -18,18 +23,25 @@ function App() {
 
   return (
     <>
-      <Button onClick={() => setActiveTheme('aTheme')}>
-        Switch to A Theme
-      </Button>
-      <Button onClick={() => setActiveTheme('bTheme')}>
-        Switch to B Theme
-      </Button>
-      <Button onClick={() => setActiveTheme('cTheme')}>
-        Switch to C Theme
-      </Button>
-      <div>User System Roles: {JSON.stringify(userSystemRoles)}</div>
-      {useCheckPermissions(SYSTEM_ROLES.ROLE_ADMIN) && <div>User is an ADMIN</div>}
-      {useCheckPermissions(SYSTEM_ROLES.ROLE_DEVELOPER) && <div>User is a DEVELOPER</div>}
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Button onClick={() => setActiveTheme('aTheme')} variant="contained">
+          Switch to A Theme
+        </Button>
+        <Button onClick={() => setActiveTheme('bTheme')} variant="contained">
+          Switch to B Theme
+        </Button>
+        <Button onClick={() => setActiveTheme('cTheme')} variant="contained">
+          Switch to C Theme
+        </Button>
+      </Box>
+      <ul>
+        <li>User System Roles: {JSON.stringify(userSystemRoles)}</li>
+        <li>Authorized Folders: {JSON.stringify(authorizedFolders)}</li>
+        {useCheckPermissions(SYSTEM_ROLES.ROLE_ADMIN) && <li>User is an ADMIN</li>}
+        {useCheckPermissions(SYSTEM_ROLES.ROLE_DEVELOPER) && <li>User is a DEVELOPER</li>}
+      </ul>
+      <FolderSelector />
+      <ActiveFolderDisplay />
     </>
   )
 }

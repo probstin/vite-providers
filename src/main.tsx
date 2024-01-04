@@ -5,8 +5,9 @@ import App from './App.tsx';
 import AuditProvider from './providers/AuditProvider.tsx';
 import { AuthenticationProvider } from './providers/AuthenticationProvider.tsx';
 import { AuthorizationProvider } from './providers/AuthorizationProvider.tsx';
-import { CustomThemeProvider } from './providers/CustomThemeProvider.tsx';
 import AxiosProvider from './providers/AxiosProvider.tsx';
+import { CustomThemeProvider } from './providers/CustomThemeProvider.tsx';
+import FolderProvider from './providers/FolderProvider.tsx';
 
 const aTheme: ThemeOptions = {
   palette: {
@@ -64,7 +65,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <AuditProvider>
           <AxiosProvider apiUrls={apiUrls}>
             <CustomThemeProvider themes={customThemes}>
-              <App />
+              <FolderProvider>
+                <App />
+              </FolderProvider>
             </CustomThemeProvider>
           </AxiosProvider>
         </AuditProvider>
